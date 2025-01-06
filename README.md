@@ -33,7 +33,7 @@ AI Cockpit Stream ist eine Flask-basierte Anwendung, die es ermöglicht, Starter
 ### 1. Projekt klonen oder herunterladen
 
 ```bash
-https://github.com/<dein-repo>/ai_cockpit_stream.git
+https://github.com/Herbert-Sch/AI-Cockpit.git
 cd ai_cockpit_stream
 ```
 
