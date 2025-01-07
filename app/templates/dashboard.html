@@ -71,6 +71,17 @@
             height: 60vh;
             background-color: black;
         }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: start;
+            margin: 20px;
+        }
+        form input, form button {
+            padding: 10px;
+            font-size: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -81,13 +92,21 @@
         <button class="stop-btn" onclick="stopRecognition()">Stop</button>
     </div>
     <h1>AI Cockpit Stream</h1>
-    <button onclick="uploadStartlist()">Startliste Hochladen</button>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="stream_url">Streaming URL:</label>
+        <input type="text" id="stream_url" name="stream_url" required>
+        
+        <label for="startlist">Startliste hochladen:</label>
+        <input type="file" id="startlist" name="startlist" accept=".json" required>
+        
+        <button type="submit">Upload</button>
+    </form>
 </div>
 
 <div class="container">
     <div class="sidebar">
         <h2>Startliste</h2>
-        <div id="startlist"></div>
+        <div id="startlistDisplay"></div>
     </div>
     <div class="main">
         <div class="player" id="player"></div>
@@ -99,7 +118,7 @@
     async function fetchResults() {
         const response = await fetch('/results');
         const data = await response.json();
-        const startlistDiv = document.getElementById('startlist');
+        const startlistDiv = document.getElementById('startlistDisplay');
         startlistDiv.innerHTML = '';
         data.forEach(entry => {
             const div = document.createElement('div');
@@ -110,19 +129,26 @@
     }
 
     function startRecognition() {
-        fetch('/start', { method: 'POST', headers: { 'Authorization': 'Bearer secureapitoken123' } })
+        fetch('/start', { method: 'POST' })
             .then(response => response.json())
             .then(data => alert(data.message));
     }
 
     function stopRecognition() {
-        fetch('/stop', { method: 'POST', headers: { 'Authorization': 'Bearer secureapitoken123' } })
+        fetch('/stop', { method: 'POST' })
             .then(response => response.json())
             .then(data => alert(data.message));
     }
 
-    function uploadStartlist() {
-        alert('Funktion zum Hochladen wird implementiert...');
+    document.getElementById('uploadForm').onsubmit = async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        alert(data.message || data.error);
     }
 
     setInterval(fetchResults, 5000);
