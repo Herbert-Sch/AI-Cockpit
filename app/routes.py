@@ -16,7 +16,9 @@ def dashboard():
 
 @app.route('/upload', methods=['POST'])
 def upload():
-    return upload_startlist()
+    if not session.get('logged_in'):
+    return jsonify({"error": "Unauthorized"}), 401
+
 
 @app.route('/start', methods=['POST'])
 def start():

@@ -4,20 +4,25 @@ import threading
 import time
 from app.recognition import process_stream, STARTLIST, STREAM_URL, clipmyhorse_event_id, class_no, error_message, stop_event
 
+
 def upload_startlist():
     global STARTLIST, STREAM_URL, clipmyhorse_event_id, class_no, error_message
     try:
         if 'startlist' in request.files and 'stream_url' in request.form:
             file = request.files['startlist']
-            STARTLIST = json.load(file)
+            startlist_data = json.load(file)
+
+            # Übertragung in STARTLIST im gewünschten Format
+            STARTLIST = startlist_data.get("startlist", {})
             STREAM_URL = request.form['stream_url']
-            clipmyhorse_event_id = STARTLIST.get('clipmyhorse_event_id', 'unknown_event')
-            class_no = STARTLIST.get('class_no', 'unknown_class')
+            clipmyhorse_event_id = startlist_data.get('clipmyhorse_event_id', 'unknown_event')
+            class_no = startlist_data.get('class_no', 'unknown_class')
             error_message = None
             return jsonify({"message": "Startlist, URL, and event information updated"})
     except Exception as e:
         error_message = f"Failed to upload startlist: {str(e)}"
     return jsonify({"error": "Invalid input"})
+
 
 def start_recognition():
     global error_message
@@ -28,6 +33,7 @@ def start_recognition():
     except Exception as e:
         error_message = f"Failed to start recognition: {str(e)}"
         return jsonify({"error": error_message}), 500
+
 
 def stop_recognition():
     global error_message

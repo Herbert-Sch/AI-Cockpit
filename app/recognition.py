@@ -124,16 +124,21 @@ def preprocess_frame(frame):
 
 
 def match_entry(text):
-    for entry in STARTLIST.get("startlist", {}).get("entries", []):
+    for entry in STARTLIST.get("entries", []):
         if entry['ridername'].lower() in text.lower() or entry['sport_name'].lower() in text.lower() or entry['headnr'] in text:
             if entry['headnr'] not in recognized_headnumbers:
                 elapsed_time = int(time.time() - start_time)
-                recognized_headnumbers.add(entry['headnr'])  # Verhindert doppelte Speicherung
+                recognized_headnumbers.add(entry['headnr'])
+
                 if entry['headnr'] not in recognized_starters:
                     recognized_starters[entry['headnr']] = entry
                     recognized_starters[entry['headnr']]['live_chapter'] = []
+                
+                # Füge den gleichen Zeitstempel zweimal hinzu
                 recognized_starters[entry['headnr']]['live_chapter'].append({"second": elapsed_time})
-                print(f"Matched Entry: {entry['ridername']} - {entry['sport_name']}")
+                recognized_starters[entry['headnr']]['live_chapter'].append({"second": elapsed_time})
+                
+                print(f"Matched Entry: {entry['ridername']} - {entry['sport_name']} mit Zeit: {elapsed_time} Sekunden")
 
 
 
@@ -205,8 +210,33 @@ def save_results():
         os.makedirs(directory, exist_ok=True)
         filepath = f"{directory}/{clipmyhorse_event_id}-{class_no}.json"
 
+        # Umwandlung der erkannten Starter in das gewünschte Ausgabeformat
+        output = []
+        for starter in recognized_starters.values():
+            entry = {
+                "sport_name": starter.get("sport_name"),
+                "breed_name": starter.get("breed_name"),
+                "horse_iso": starter.get("horse_iso"),
+                "year_of_birth": starter.get("year_of_birth"),
+                "color_en": starter.get("color_en"),
+                "gender_en": starter.get("gender_en"),
+                "breeder": starter.get("breeder"),
+                "fei": starter.get("fei"),
+                "name_father": starter.get("name_father"),
+                "iso_father": starter.get("iso_father"),
+                "name_mother": starter.get("name_mother"),
+                "iso_mother": starter.get("iso_mother"),
+                "ridername": starter.get("ridername"),
+                "team": starter.get("team"),
+                "start_time": starter.get("start_time", ""),
+                "startnr": starter.get("startnr"),
+                "headnr": starter.get("headnr"),
+                "live_chapter": starter.get("live_chapter", [])
+            }
+            output.append(entry)
+
         with open(filepath, 'w') as file:
-            json.dump(list(recognized_starters.values()), file, indent=4)
+            json.dump(output, file, indent=4)
         print(f"Results saved to {filepath}")
     except Exception as e:
         print(f"Failed to save results: {str(e)}")
