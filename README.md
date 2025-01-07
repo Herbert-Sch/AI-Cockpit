@@ -1,4 +1,4 @@
-# AI Cockpit Stream - README
+# AI Cockpit
 
 ## Projektbeschreibung
 AI Cockpit Stream ist eine Flask-basierte Webanwendung, die es ermöglicht, Starter aus einem Live-Stream durch Bild- und Sprachanalyse zu identifizieren. 
