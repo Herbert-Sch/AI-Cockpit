@@ -56,8 +56,8 @@ sudo apt install python3 python3-pip python3-venv ffmpeg libsm6 libxext6 tessera
 
 ### 3. Projekt herunterladen
 ```bash
-git clone <GITHUB-REPO-URL>
-cd <PROJECT-NAME>
+git clone https://github.com/Herbert-Sch/AI-Cockpit.git
+cd AI-Cockpit
 ```
 
 ### 4. Virtuelle Umgebung erstellen und aktivieren
@@ -105,8 +105,8 @@ After=network.target
 
 [Service]
 User=ubuntu
-WorkingDirectory=/home/ubuntu/<PROJECT-NAME>
-ExecStart=/home/ubuntu/<PROJECT-NAME>/venv/bin/python3 /home/ubuntu/<PROJECT-NAME>/main.py
+WorkingDirectory=/home/ubuntu/AI-Cockpit
+ExecStart=/home/ubuntu/AI-Cockpit/venv/bin/python3 /home/ubuntu/AI-Cockpit/main.py
 Restart=always
 
 [Install]
