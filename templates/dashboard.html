@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Cockpit - Worker 1</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+        }
+        .header button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        .start-btn {
+            background-color: green;
+            color: white;
+        }
+        .stop-btn {
+            background-color: red;
+            color: white;
+        }
+        .container {
+            display: flex;
+            flex-grow: 1;
+        }
+        .sidebar {
+            width: 300px;
+            background-color: white;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+        }
+        .sidebar h2 {
+            text-align: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .entry {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        .entry.active {
+            background-color: #cce5ff;
+        }
+        .main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .player {
+            width: 80%;
+            height: 60%;
+            border: 1px solid #ccc;
+        }
+        .error-message {
+            color: red;
+            text-align: center;
+            margin: 10px;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div>
+        <button class="start-btn" onclick="startRecognition()">Start</button>
+        <button class="stop-btn" onclick="stopRecognition()">Stop</button>
+    </div>
+    <h1>AI Cockpit - Worker 1</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="stream_url">Streaming URL:</label>
+        <input type="text" id="stream_url" name="stream_url" required>
+        
+        <label for="startlist">Startliste hochladen:</label>
+        <input type="file" id="startlist" name="startlist" accept=".json" required>
+        
+        <button type="submit">Upload</button>
+    </form>
+    <a href="{{ url_for('download_latest') }}" class="download-btn">Ergebnisse herunterladen</a>
+</div>
+
+<!-- Fehleranzeige -->
+<div id="errorDisplay" class="error-message"></div>
+
+<div class="container">
+    <div class="sidebar">
+        <h2>Startliste</h2>
+        <div id="startlistDisplay"></div>
+    </div>
+    
+    <div class="main">
+        <h2>Live Stream</h2>
+        <img src="{{ url_for('video_feed') }}" class="player" alt="Live Stream">
+        <h2 id="currentStarter">Aktueller Starter: </h2>
+    </div>
+</div>
+
+<script>
+    async function fetchResults() {
+        const response = await fetch('/results');
+        const data = await response.json();
+        const startlistDiv = document.getElementById('startlistDisplay');
+        startlistDiv.innerHTML = '';
+        data.forEach(entry => {
+            const div = document.createElement('div');
+            div.className = 'entry ' + (entry.active ? 'active' : '');
+            div.textContent = entry.sport_name + " - " + entry.ridername;
+            startlistDiv.appendChild(div);
+        });
+    }
+
+    function startRecognition() {
+        fetch('/start', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.error) {
+                    displayError(data.error);
+                }
+            });
+    }
+
+    function stopRecognition() {
+        fetch('/stop', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.error) {
+                    displayError(data.error);
+                }
+            });
+    }
+
+    document.getElementById('uploadForm').onsubmit = async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        alert(data.message || data.error);
+        if (data.error) {
+            displayError(data.error);
+        }
+    }
+
+    async function checkErrors() {
+        const response = await fetch('/errors');
+        const data = await response.json();
+        displayError(data.error_message);
+    }
+
+    function displayError(message) {
+        const errorDiv = document.getElementById('errorDisplay');
+        errorDiv.textContent = message || '';
+    }
+
+    setInterval(fetchResults, 5000);
+    setInterval(checkErrors, 5000);
+</script>
+
+</body>
+</html>
