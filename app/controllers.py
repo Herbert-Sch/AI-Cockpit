@@ -26,6 +26,8 @@ def upload_startlist():
 
 def start_recognition():
     global error_message
+    if not STREAM_URL:
+        return jsonify({"error": "Streaming URL is missing"}), 400
     try:
         threading.Thread(target=process_stream, args=(STREAM_URL, STARTLIST)).start()
         error_message = None
@@ -33,6 +35,7 @@ def start_recognition():
     except Exception as e:
         error_message = f"Failed to start recognition: {str(e)}"
         return jsonify({"error": error_message}), 500
+
 
 
 def stop_recognition():

@@ -20,6 +20,13 @@ STREAM_URL = ""
 clipmyhorse_event_id = None
 class_no = None
 
+
+# Validierung der Streaming-URL
+if not STREAM_URL:
+    error_message = "Streaming URL not set."
+    exit(1)
+
+
 MODEL_DIR = "vosk-model"
 if not os.path.exists(MODEL_DIR):
     error_message = "Vosk model not found."

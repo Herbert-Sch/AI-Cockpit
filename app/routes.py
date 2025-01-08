@@ -27,10 +27,12 @@ def dashboard():
         return redirect(url_for('login'))
     return render_template('dashboard.html', results=results, error_message=error_message)
 
+
 @app.route('/upload', methods=['POST'])
 def upload():
     if not session.get('logged_in'):
-      return jsonify({"error": "Unauthorized"}), 401
+        return jsonify({"error": "Unauthorized"}), 401
+    return upload_startlist()
 
 
 @app.route('/start', methods=['POST'])
@@ -43,24 +45,29 @@ def stop():
 
 @app.route('/results', methods=['GET'])
 def get_results():
-    return jsonify(results)
+    return jsonify({"startlist": STARTLIST})
+
 
 @app.route('/errors', methods=['GET'])
 def get_errors():
     return jsonify({"error_message": error_message})
     
+    
 @app.route('/video_feed')
 def video_feed():
     def generate_frames():
-        camera = cv2.VideoCapture(STREAM_URL)
-        while True:
-            success, frame = camera.read()
-            if not success:
-                break
-            else:
-                _, buffer = cv2.imencode('.jpg', frame)
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
+    global STREAM_URL
+    if not STREAM_URL:
+        return
+    camera = cv2.VideoCapture(STREAM_URL)
+    while True:
+        success, frame = camera.read()
+        if not success:
+            break
+        else:
+            _, buffer = cv2.imencode('.jpg', frame)
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
     
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
     
