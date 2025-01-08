@@ -4,9 +4,22 @@ from app.controllers import upload_startlist, start_recognition, stop_recognitio
 from app.recognition import results, error_message
 from flask import send_file
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def login():
-    return render_template('login.html')
+    error = None
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        # Beispiel-Login-Logik (anpassen an deine Anforderungen)
+        if username == 'Admin' and password == 'Horsemyclip25':
+            session['logged_in'] = True
+            return redirect(url_for('dashboard'))
+        else:
+            error = 'Invalid Credentials. Please try again.'
+    
+    return render_template('login.html', error=error)
+
 
 @app.route('/dashboard')
 def dashboard():
