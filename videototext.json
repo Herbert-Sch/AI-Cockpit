@@ -1,0 +1,14 @@
+[
+    {
+        "kopfnummer": "123",
+        "pferdename": "Black Beauty",
+        "reitername": "Max Mustermann",
+        "timestamp": 3
+    },
+    {
+        "kopfnummer": "124",
+        "pferdename": "White Star",
+        "reitername": "Anna Musterfrau",
+        "timestamp": 6
+    }
+]

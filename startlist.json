@@ -1,0 +1,49 @@
+ {
+    "clipmyhorse_event_id": 15529,
+    "class_no": 3,
+    "platform": "WEC",
+    "startlist": {
+        "class_name": "Class 3 - 1.20 m Special Two Phases",
+        "start_time": "2025-01-05T13:20:00+01:00",
+        "entries": [
+            {
+                "sport_name": "Indra 147",
+                "breed_name": null,
+                "horse_iso": "DE 421000083116",
+                "year_of_birth": "2016",
+                "color_en": "chestnut",
+                "gender_en": "Mare",
+                "breeder": "Sipple,Elmar",
+                "fei": null,
+                "name_father": "Kannan",
+                "iso_father": "NLD003199204130",
+                "name_mother": null,
+                "iso_mother": null,
+                "ridername": "Sven Sieger",
+                "team": "RFV Bad Wurzach",
+                "start_time": null,
+                "startnr": 1,
+                "headnr": "229"
+            },
+            {
+                "sport_name": "Musterpferd",
+                "breed_name": null,
+                "horse_iso": "DE 421000083226",
+                "year_of_birth": "2014",
+                "color_en": "black",
+                "gender_en": "Mare",
+                "breeder": "Thomas Mustermann",
+                "fei": null,
+                "name_father": "Tom",
+                "iso_father": "NLD003199204130",
+                "name_mother": null,
+                "iso_mother": "Jarry",
+                "ridername": "Sven Zweiter",
+                "team": "RV for Fun",
+                "start_time": null,
+                "startnr": 2,
+                "headnr": "111"
+            }
+        ]
+    }
+}

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Cockpit Dashboard</title>
+    <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet">
+    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f9;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            flex-wrap: wrap;
+        }
+
+        .player-section {
+            flex: 2;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .player-section video-js {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 9;
+            max-width: 960px;
+        }
+
+        .buttons-section {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .functions-section {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .combined-forms {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            height: calc(100% - 40px); /* Align with the player's height */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            gap: 20px;
+        }
+
+        .combined-forms form {
+            margin-bottom: 15px;
+        }
+
+        a.download-button {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        a.download-button:hover {
+            transform: scale(1.05);
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .start-button {
+            background-color: #28a745;
+        }
+
+        .start-button:hover {
+            background-color: #218838;
+        }
+
+        .stop-button {
+            background-color: #dc3545;
+        }
+
+        .stop-button:hover {
+            background-color: #c82333;
+        }
+
+        .active {
+            box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.2);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Cockpit Dashboard</h1>
+
+    <div class="container">
+        <div class="player-section">
+            {% if stream_url %}
+            <h2>Live Stream</h2>
+            <video-js id="live-player" class="vjs-default-skin" controls preload="auto" data-setup='{}'>
+                <source src="{{ stream_url }}" type="application/vnd.apple.mpegurl">
+            </video-js>
+            {% endif %}
+
+            <div class="buttons-section">
+                <form action="/start" method="post">
+                    <button type="submit" class="start-button">Start AI</button>
+                </form>
+                <form action="/stop" method="post">
+                    <button type="submit" class="stop-button">Stop AI</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="functions-section">
+            <div class="combined-forms">
+                <form action="/configure_stream" method="post">
+                    <label for="stream_url">Stream URL:</label>
+                    <input type="text" id="stream_url" name="stream_url" required>
+                    <button type="submit">Save Stream Configuration</button>
+                </form>
+
+                <form action="/upload_startlist" method="post" enctype="multipart/form-data">
+                    <label for="startlist">Upload Startlist:</label>
+                    <input type="file" id="startlist" name="startlist" accept=".json" required>
+                    <button type="submit">Upload Startlist</button>
+                </form>
+            </div>
+        </div>
+
+        <a href="/download_cockpit" class="download-button">Download Cockpit Export</a>
+    </div>
+</body>
+</html>
