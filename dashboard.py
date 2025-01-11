@@ -35,7 +35,7 @@ def validate_startlist(data):
         "name_mother", "iso_mother", "ridername", "team",
         "start_time", "startnr", "headnr"
     ]
-    
+
     # Check top-level keys
     for key in required_keys:
         if key not in data:
@@ -46,12 +46,12 @@ def validate_startlist(data):
     for key in startlist_required_keys:
         if key not in startlist_data:
             return False, f"Missing key in startlist: {key}"
-    
+
     # Check entries
     entries = startlist_data.get("entries", [])
     if not isinstance(entries, list):
         return False, "Entries must be a list."
-    
+
     for entry in entries:
         for key in entry_required_keys:
             if key not in entry:
@@ -153,6 +153,18 @@ def download_cockpit():
         return jsonify({"error": f"Failed to execute the export script: {e}"}), 500
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {e}"}), 500
+
+@app.route('/get_latest_entries', methods=['GET'])
+def get_latest_entries():
+    if not os.path.exists(VIDEOTOTEXT_PATH):
+        return jsonify({"error": "Data file not found."}), 404
+
+    with open(VIDEOTOTEXT_PATH, 'r') as f:
+        data = json.load(f)
+
+    # Die letzten 10 Einträge abrufen
+    latest_entries = data[-10:]
+    return jsonify(latest_entries), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

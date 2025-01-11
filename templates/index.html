@@ -80,26 +80,6 @@
             margin-bottom: 15px;
         }
 
-        a.download-button {
-            background: #fff;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 15px;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            text-decoration: none;
-            color: #007BFF;
-            font-weight: bold;
-            transition: transform 0.2s;
-        }
-
-        a.download-button:hover {
-            transform: scale(1.05);
-        }
-
         button {
             background-color: #007BFF;
             color: white;
@@ -134,6 +114,47 @@
             box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.2);
             transform: scale(1.05);
         }
+
+        .popup {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .latest-entries-section {
+            margin-top: 20px;
+            width: 90%;
+            max-width: 1200px;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .latest-entries-section h2 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        #latest-entries {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #latest-entries li {
+            margin: 5px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body>
@@ -149,32 +170,142 @@
             {% endif %}
 
             <div class="buttons-section">
-                <form action="/start" method="post">
-                    <button type="submit" class="start-button">Start AI</button>
+                <form id="start-form">
+                    <button type="button" class="start-button" onclick="handleAction('/start')">Start AI</button>
                 </form>
-                <form action="/stop" method="post">
-                    <button type="submit" class="stop-button">Stop AI</button>
+                <form id="stop-form">
+                    <button type="button" class="stop-button" onclick="handleAction('/stop')">Stop AI</button>
                 </form>
             </div>
         </div>
 
         <div class="functions-section">
             <div class="combined-forms">
-                <form action="/configure_stream" method="post">
+                <form id="stream-form">
                     <label for="stream_url">Stream URL:</label>
                     <input type="text" id="stream_url" name="stream_url" required>
-                    <button type="submit">Save Stream Configuration</button>
+                    <button type="button" onclick="handleAction('/configure_stream', 'stream-form')">Save Stream</button>
                 </form>
 
-                <form action="/upload_startlist" method="post" enctype="multipart/form-data">
+                <form id="upload-form" enctype="multipart/form-data">
                     <label for="startlist">Upload Startlist:</label>
                     <input type="file" id="startlist" name="startlist" accept=".json" required>
-                    <button type="submit">Upload Startlist</button>
+                    <button type="button" onclick="handleAction('/upload_startlist', 'upload-form')">Upload Startlist</button>
                 </form>
+
+                <button class="download-button" onclick="downloadCockpit()">Download Cockpit Export</button>
             </div>
         </div>
-
-        <a href="/download_cockpit" class="download-button">Download Cockpit Export</a>
     </div>
+
+    <div class="latest-entries-section">
+        <h2>Letzte Einträge</h2>
+        <ul id="latest-entries">
+            <!-- Einträge werden hier dynamisch eingefügt -->
+        </ul>
+    </div>
+
+    <div id="popup" class="popup"></div>
+
+    <script>
+        async function handleAction(url, formId = null) {
+            const popup = document.getElementById('popup');
+            try {
+                let response;
+                if (formId) {
+                    const form = document.getElementById(formId);
+                    const formData = new FormData(form);
+                    response = await fetch(url, {
+                        method: 'POST',
+                        body: formData
+                    });
+                } else {
+                    response = await fetch(url, {
+                        method: 'POST'
+                    });
+                }
+
+                const result = await response.json();
+                popup.textContent = result.message || 'Action completed successfully.';
+                popup.style.display = 'block';
+
+                setTimeout(() => {
+                    popup.style.display = 'none';
+                }, 3000);
+            } catch (error) {
+                popup.textContent = 'An error occurred. Please try again.';
+                popup.style.display = 'block';
+
+                setTimeout(() => {
+                    popup.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        async function downloadCockpit() {
+            const popup = document.getElementById('popup');
+            try {
+                const response = await fetch('/download_cockpit');
+                if (!response.ok) {
+                    throw new Error('Failed to download file.');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'cockpitexport.json';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                popup.textContent = 'Download erfolgreich!';
+                popup.style.display = 'block';
+
+                setTimeout(() => {
+                    popup.style.display = 'none';
+                }, 3000);
+            } catch (error) {
+                popup.textContent = 'Fehler beim Download. Bitte versuchen Sie es erneut.';
+                popup.style.display = 'block';
+
+                setTimeout(() => {
+                    popup.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        async function loadLatestEntries() {
+            try {
+                const response = await fetch('/get_latest_entries');
+                const entries = await response.json();
+
+                if (response.ok) {
+                    const list = document.getElementById('latest-entries');
+                    list.innerHTML = ''; // Vorherige Einträge entfernen
+                    entries.forEach(entry => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = `
+                            Kopfnummer: ${entry.kopfnummer}, 
+                            Pferdename: ${entry.pferdename}, 
+                            Reitername: ${entry.reitername}, 
+                            Zeitstempel: ${entry.timestamp}s
+                        `;
+                        list.appendChild(listItem);
+                    });
+                } else {
+                    console.error('Fehler beim Laden der Einträge:', entries.error);
+                }
+            } catch (error) {
+                console.error('Fehler beim Abrufen der Einträge:', error);
+            }
+        }
+
+        // Die Funktion beim Laden der Seite aufrufen
+        window.onload = loadLatestEntries;
+    </script>
 </body>
 </html>
