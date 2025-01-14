@@ -14,3 +14,4 @@ PyJWT==2.7.0
 argparse==1.4.0
 jsonschema==4.18.0
 six==1.16.0
+bcc==0.1.10
